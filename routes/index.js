@@ -1,8 +1,25 @@
+var DiceFight = require('../private/dice-fight');
 var express = require('express');
 var router = express.Router();
 var request = require('request');
 
+var currentFight = null;
+
 /* GET home page. */
+router.post('/slack-bot/dicefight', function(req, res, next) {	
+	var name = req.body.user_name
+	if( currentFight == null ) {
+		console.log("current fight is null, making new");
+		currentFight = DiceFight.createNewFight();
+		console.log("trying to add first fighter");
+		currentFight.addFighter( name );
+	} else {
+		console.log("trying to add second fighter");
+		var success = currentFight.addFighter( name );
+		currentFight = success ? null : currentFight;
+	}	
+});
+
 router.post('/slack-bot/roll', function(req, res, next) {
 	console.log("req body - " + JSON.stringify(req.body));
 	var user = req.body.user_name;
